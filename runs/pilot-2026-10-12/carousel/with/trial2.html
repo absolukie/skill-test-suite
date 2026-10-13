@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neighborhood Coffee Spots</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #2d2118;
+      --muted: #75665a;
+      --paper: #fffaf3;
+      --card: #ffffff;
+      --line: #eadfd2;
+      --accent: #9a4f22;
+      --accent-soft: #f4e3d3;
+      --shadow: 0 18px 45px rgba(84, 52, 25, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(214, 144, 74, 0.22), transparent 34rem),
+        linear-gradient(180deg, #fff7ec 0%, #f7ecdd 100%);
+      color: var(--ink);
+      font-family: Inter, ui-sans-system, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      padding: 22px 14px 34px;
+    }
+
+    .app {
+      width: min(100%, 620px);
+      margin: 0 auto;
+    }
+
+    header {
+      padding: 4px 4px 16px;
+    }
+
+    .eyebrow {
+      margin: 0 0 7px;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2rem, 11vw, 4.4rem);
+      line-height: 0.95;
+      letter-spacing: -0.055em;
+    }
+
+    .intro {
+      max-width: 34rem;
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.55;
+    }
+
+    .readout {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 48px;
+      margin: 0 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      padding: 10px 16px;
+      box-shadow: 0 8px 24px rgba(84, 52, 25, 0.08);
+      font-weight: 750;
+    }
+
+    .readout::before {
+      width: 9px;
+      height: 9px;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: var(--accent);
+      content: "";
+    }
+
+    .readout span {
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .tcar {
+      position: relative;
+      padding: 0 30px;
+    }
+
+    .ttrack {
+      display: flex;
+      overflow-x: auto;
+      border-radius: 30px;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .ttrack::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tslide {
+      display: flex;
+      flex: 0 0 100%;
+      flex-direction: column;
+      scroll-snap-align: center;
+      scroll-snap-stop: always;
+    }
+
+    .tslide-card {
+      display: block;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(255, 246, 235, 0.94)),
+        var(--card);
+      box-shadow: var(--shadow);
+      color: inherit;
+      cursor: pointer;
+      font: inherit;
+      padding: 26px 24px 24px;
+      text-align: left;
+      touch-action: manipulation;
+    }
+
+    .tslide-card:focus-visible,
+    .tnav:focus-visible {
+      outline: 3px solid rgba(154, 79, 34, 0.42);
+      outline-offset: 3px;
+    }
+
+    .tslide-card[aria-pressed="true"] {
+      border-color: rgba(154, 79, 34, 0.55);
+      box-shadow: 0 20px 52px rgba(84, 52, 25, 0.2);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 34px;
+    }
+
+    .neighborhood {
+      display: block;
+      color: var(--accent);
+      font-size: 0.76rem;
+      font-weight: 850;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .rating {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #7c3c16;
+      padding: 6px 9px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .spot-name {
+      display: block;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2rem, 10vw, 3.55rem);
+      line-height: 0.98;
+      letter-spacing: -0.045em;
+    }
+
+    .description {
+      display: block;
+      margin-top: 15px;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.55;
+    }
+
+    .details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 22px;
+    }
+
+    .detail {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      color: #5f4c3e;
+      padding: 7px 10px;
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    .tcount {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.92rem;
+      font-variant-numeric: tabular-nums;
+      text-align: center;
+    }
+
+    .tnav {
+      position: absolute;
+      top: 50%;
+      z-index: 2;
+      display: grid;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      border: 1px solid rgba(234, 223, 210, 0.9);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.84);
+      box-shadow: 0 10px 26px rgba(84, 52, 25, 0.16);
+      color: var(--ink);
+      cursor: pointer;
+      font: inherit;
+      font-size: 2rem;
+      line-height: 1;
+      padding: 0 0 4px;
+      touch-action: manipulation;
+      transform: translateY(-50%);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .tnav.prev {
+      left: 0;
+    }
+
+    .tnav.next {
+      right: 0;
+    }
+
+    .hint {
+      margin: 16px 34px 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    @media (min-width: 560px) {
+      body {
+        padding-top: 38px;
+      }
+
+      .tslide-card {
+        padding: 32px 34px 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <p class="eyebrow">Five local favorites</p>
+      <h1>Neighborhood coffee spots</h1>
+      <p class="intro">Browse one spot at a time, swipe or use the arrows, then tap a card to select it.</p>
+    </header>
+
+    <p class="readout" aria-live="polite"><span>Selected:</span><strong id="readout">Juniper &amp; Rye</strong></p>
+
+    <section class="tcar" aria-label="Coffee spot carousel">
+      <div class="ttrack" id="ttrack" aria-label="Coffee spots"></div>
+      <button class="tnav prev" id="tprev" type="button" aria-label="Previous">‹</button>
+      <button class="tnav next" id="tnext" type="button" aria-label="Next">›</button>
+    </section>
+
+    <p class="hint">Tip: tapping a card selects that coffee spot without moving the page.</p>
+  </main>
+
+  <script>
+    (() => {
+      const spots = [
+        {
+          name: "Juniper & Rye",
+          neighborhood: "Maple Heights",
+          rating: "4.9",
+          description: "A sunny corner cafe with house-milled rye pastries, a slow bar for pour-overs, and just enough room to linger over a second cup.",
+          details: ["Cardamom latte", "Dog friendly", "Opens 7 AM"]
+        },
+        {
+          name: "Foxglove Coffee",
+          neighborhood: "Old Mill District",
+          rating: "4.8",
+          description: "Small, plant-filled, and serious about espresso. The seasonal shrub cold brew is the neighborhood favorite on hot afternoons.",
+          details: ["Cold brew", "Patio seats", "Beans to go"]
+        },
+        {
+          name: "The Daily Grindstone",
+          neighborhood: "North Junction",
+          rating: "4.7",
+          description: "A work-friendly standby with big tables, fast Wi-Fi, and a rotating single-origin menu that changes every Friday.",
+          details: ["Laptop friendly", "Single origin", "Opens 6 AM"]
+        },
+        {
+          name: "Marigold Social",
+          neighborhood: "Garden Row",
+          rating: "4.9",
+          description: "Part cafe, part community living room, with floral lattes, weekend waffles, and a chalkboard full of local events.",
+          details: ["Weekend waffles", "Community board", "Oat milk"]
+        },
+        {
+          name: "Copper Cup",
+          neighborhood: "Riverside",
+          rating: "4.8",
+          description: "A polished little espresso bar overlooking the river path. Come for the cortado, stay for the cinnamon morning bun.",
+          details: ["River view", "Cortado", "Morning buns"]
+        }
+      ];
+
+      const track = document.getElementById("ttrack");
+      const readout = document.getElementById("readout");
+      const prev = document.getElementById("tprev");
+      const next = document.getElementById("tnext");
+      const total = spots.length;
+      let idx = 0;
+      let scrollFrame = 0;
+      let settleTimer = 0;
+      let resizeTimer = 0;
+
+      track.innerHTML = spots.map((spot, index) => `
+        <div class="tslide">
+          <button class="tslide-card" type="button" data-index="${index}" aria-label="Select ${spot.name}" aria-pressed="${index === 0}">
+            <span class="card-top">
+              <span class="neighborhood">${spot.neighborhood}</span>
+              <span class="rating" aria-label="Rated ${spot.rating} out of 5">★ ${spot.rating}</span>
+            </span>
+            <span class="spot-name">${spot.name}</span>
+            <span class="description">${spot.description}</span>
+            <span class="details">${spot.details.map(detail => `<span class="detail">${detail}</span>`).join("")}</span>
+          </button>
+          <p class="tcount">${index + 1}/${total}</p>
+        </div>
+      `).join("");
+
+      const cards = Array.from(track.querySelectorAll(".tslide-card"));
+
+      function equalizeCardHeights() {
+        cards.forEach(card => {
+          card.style.height = "auto";
+        });
+
+        const tallest = Math.max(...cards.map(card => card.offsetHeight));
+        cards.forEach(card => {
+          card.style.height = `${tallest}px`;
+        });
+      }
+
+      function applySelection() {
+        readout.textContent = spots[idx].name;
+        cards.forEach((card, index) => {
+          card.setAttribute("aria-pressed", String(index === idx));
+        });
+      }
+
+      function load(i) {
+        idx = ((i % total) + total) % total;
+        applySelection();
+        track.scrollTo(idx * track.clientWidth, 0);
+      }
+
+      function settleToNearestSlide() {
+        const slideWidth = track.clientWidth;
+        if (!slideWidth) return;
+
+        const nearest = Math.max(0, Math.min(total - 1, Math.round(track.scrollLeft / slideWidth)));
+        const target = nearest * slideWidth;
+
+        if (Math.abs(track.scrollLeft - target) > 2) {
+          idx = nearest;
+          applySelection();
+          track.scrollTo(target, 0);
+        }
+      }
+
+      function scheduleSettle() {
+        window.clearTimeout(settleTimer);
+        settleTimer = window.setTimeout(settleToNearestSlide, 180);
+      }
+
+      prev.addEventListener("click", () => load(idx - 1));
+      next.addEventListener("click", () => load(idx + 1));
+
+      cards.forEach((card, index) => {
+        card.addEventListener("click", () => load(index));
+      });
+
+      track.addEventListener("scroll", () => {
+        scheduleSettle();
+
+        if (scrollFrame) return;
+        scrollFrame = window.requestAnimationFrame(() => {
+          scrollFrame = 0;
+          const slideWidth = track.clientWidth;
+          if (!slideWidth) return;
+
+          const nextIdx = Math.max(0, Math.min(total - 1, Math.round(track.scrollLeft / slideWidth)));
+          if (nextIdx !== idx) {
+            idx = nextIdx;
+            applySelection();
+          }
+        });
+      }, { passive: true });
+
+      track.addEventListener("scrollend", settleToNearestSlide);
+
+      window.addEventListener("resize", () => {
+        window.clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(() => {
+          equalizeCardHeights();
+          track.scrollTo(idx * track.clientWidth, 0);
+        }, 150);
+      });
+
+      applySelection();
+      window.requestAnimationFrame(equalizeCardHeights);
+      window.addEventListener("load", equalizeCardHeights);
+    })();
+  </script>
+</body>
+</html>
