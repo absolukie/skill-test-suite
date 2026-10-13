@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neighborhood Coffee Spots</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #faf6f1;
+    color: #2b2118;
+    display: flex;
+    justify-content: center;
+    padding: 20px 12px 40px;
+  }
+  .wrap { width: 100%; max-width: 390px; }
+  h1 { font-size: 1.35rem; margin-bottom: 6px; }
+  .readout {
+    font-size: 1rem;
+    margin-bottom: 14px;
+    color: #6b543e;
+    min-height: 1.4em;
+  }
+  .readout strong { color: #2b2118; }
+  .carousel { position: relative; }
+  .track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    border-radius: 14px;
+  }
+  .track::-webkit-scrollbar { display: none; }
+  .card {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    background: #fff;
+    border: 1px solid #e7ddd0;
+    border-radius: 14px;
+    padding: 22px 20px 26px;
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    min-height: 210px;
+  }
+  .card .emoji { font-size: 2.4rem; display: block; margin-bottom: 10px; }
+  .card h2 { font-size: 1.2rem; margin-bottom: 6px; }
+  .card p { font-size: 0.95rem; line-height: 1.45; color: #5c4a35; }
+  .card .meta { margin-top: 12px; font-size: 0.85rem; color: #97836a; }
+  .card.selected { outline: 3px solid #b0793f; outline-offset: -3px; }
+  .nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 1px solid #ddd0bf;
+    background: rgba(255,255,255,0.92);
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #4a3826;
+    z-index: 2;
+  }
+  .nav:active { background: #f0e6d8; }
+  .nav.prev { left: 8px; }
+  .nav.next { right: 8px; }
+  .counter {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 0.95rem;
+    color: #6b543e;
+    letter-spacing: 0.04em;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Neighborhood Coffee Spots</h1>
+  <p class="readout" id="readout">Tap a card to select a spot.</p>
+
+  <div class="carousel">
+    <div class="track" id="track">
+      <button class="card" data-name="Ember &amp; Oak">
+        <span class="emoji">🔥</span>
+        <h2>Ember &amp; Oak</h2>
+        <p>Wood-fired pastries and a slow bar pouring single-origin espresso in a converted firehouse.</p>
+        <div class="meta">0.3 mi · Open until 6 PM</div>
+      </button>
+      <button class="card" data-name="The Daily Grind">
+        <span class="emoji">⚙️</span>
+        <h2>The Daily Grind</h2>
+        <p>No-frills counter service, strong drip coffee, and the neighborhood's fastest wifi.</p>
+        <div class="meta">0.5 mi · Open until 8 PM</div>
+      </button>
+      <button class="card" data-name="Juniper Lane Cafe">
+        <span class="emoji">🌿</span>
+        <h2>Juniper Lane Cafe</h2>
+        <p>Garden patio seating, herbal tea blends, and oat milk lattes under the string lights.</p>
+        <div class="meta">0.7 mi · Open until 5 PM</div>
+      </button>
+      <button class="card" data-name="Night Owl Roasters">
+        <span class="emoji">🦉</span>
+        <h2>Night Owl Roasters</h2>
+        <p>Late-night roastery with cold brew on tap and board games for the evening crowd.</p>
+        <div class="meta">1.0 mi · Open until midnight</div>
+      </button>
+      <button class="card" data-name="Blue Door Coffee">
+        <span class="emoji">🚪</span>
+        <h2>Blue Door Coffee</h2>
+        <p>A tiny six-seat shop famous for cardamom buns and a turquoise door everyone photographs.</p>
+        <div class="meta">1.2 mi · Open until 4 PM</div>
+      </button>
+    </div>
+    <button class="nav prev" id="prevBtn" aria-label="Previous spot">‹</button>
+    <button class="nav next" id="nextBtn" aria-label="Next spot">›</button>
+  </div>
+
+  <div class="counter" id="counter">1 / 5</div>
+</div>
+
+<script>
+  (function () {
+    var track = document.getElementById('track');
+    var cards = Array.prototype.slice.call(track.querySelectorAll('.card'));
+    var counter = document.getElementById('counter');
+    var readout = document.getElementById('readout');
+    var prevBtn = document.getElementById('prevBtn');
+    var nextBtn = document.getElementById('nextBtn');
+    var current = 0;
+
+    function cardWidth() { return track.clientWidth; }
+
+    function updateCounter() {
+      counter.textContent = (current + 1) + ' / ' + cards.length;
+    }
+
+    function goTo(index) {
+      current = Math.max(0, Math.min(cards.length - 1, index));
+      track.scrollTo({ left: current * cardWidth(), behavior: 'smooth' });
+      updateCounter();
+    }
+
+    function select(index) {
+      current = index;
+      cards.forEach(function (c, i) {
+        c.classList.toggle('selected', i === index);
+      });
+      readout.innerHTML = 'Selected: <strong>' + cards[index].getAttribute('data-name') + '</strong>';
+      updateCounter();
+    }
+
+    prevBtn.addEventListener('click', function () { goTo(current - 1); });
+    nextBtn.addEventListener('click', function () { goTo(current + 1); });
+
+    cards.forEach(function (card, i) {
+      card.addEventListener('click', function () { select(i); });
+    });
+
+    var scrollTimer = null;
+    track.addEventListener('scroll', function () {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(function () {
+        var idx = Math.round(track.scrollLeft / cardWidth());
+        if (idx !== current) {
+          current = Math.max(0, Math.min(cards.length - 1, idx));
+          updateCounter();
+        }
+      }, 60);
+    }, { passive: true });
+
+    updateCounter();
+  })();
+</script>
+</body>
+</html>
