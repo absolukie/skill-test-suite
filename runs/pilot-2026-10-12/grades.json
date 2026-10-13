@@ -1,0 +1,344 @@
+{
+ "carousel": {
+  "without": [
+   {
+    "trial": 1,
+    "total": 7,
+    "checks": {
+     "snap-type x mandatory": false,
+     "snap-stop always": false,
+     "overscroll-behavior-x contain": false,
+     "per-slide N/5 counters": true,
+     "no smooth scrolling anywhere": true,
+     "equal-height logic (measure + pin)": false,
+     "touch-action manipulation": true,
+     "wrap-around modulo index": true,
+     "prev/next are buttons with aria-labels": true,
+     "no external asset references": true,
+     "next arrow advances + card tap keeps scrollY": true
+    }
+   },
+   {
+    "trial": 2,
+    "total": 6,
+    "checks": {
+     "snap-type x mandatory": false,
+     "snap-stop always": false,
+     "overscroll-behavior-x contain": false,
+     "per-slide N/5 counters": true,
+     "no smooth scrolling anywhere": true,
+     "equal-height logic (measure + pin)": false,
+     "touch-action manipulation": false,
+     "wrap-around modulo index": true,
+     "prev/next are buttons with aria-labels": true,
+     "no external asset references": true,
+     "next arrow advances + card tap keeps scrollY": true
+    }
+   },
+   {
+    "trial": 3,
+    "total": 6,
+    "checks": {
+     "snap-type x mandatory": true,
+     "snap-stop always": false,
+     "overscroll-behavior-x contain": false,
+     "per-slide N/5 counters": true,
+     "no smooth scrolling anywhere": false,
+     "equal-height logic (measure + pin)": false,
+     "touch-action manipulation": false,
+     "wrap-around modulo index": true,
+     "prev/next are buttons with aria-labels": true,
+     "no external asset references": true,
+     "next arrow advances + card tap keeps scrollY": true
+    }
+   }
+  ],
+  "with": [
+   {
+    "trial": 1,
+    "total": 11,
+    "checks": {
+     "snap-type x mandatory": true,
+     "snap-stop always": true,
+     "overscroll-behavior-x contain": true,
+     "per-slide N/5 counters": true,
+     "no smooth scrolling anywhere": true,
+     "equal-height logic (measure + pin)": true,
+     "touch-action manipulation": true,
+     "wrap-around modulo index": true,
+     "prev/next are buttons with aria-labels": true,
+     "no external asset references": true,
+     "next arrow advances + card tap keeps scrollY": true
+    }
+   },
+   {
+    "trial": 2,
+    "total": 11,
+    "checks": {
+     "snap-type x mandatory": true,
+     "snap-stop always": true,
+     "overscroll-behavior-x contain": true,
+     "per-slide N/5 counters": true,
+     "no smooth scrolling anywhere": true,
+     "equal-height logic (measure + pin)": true,
+     "touch-action manipulation": true,
+     "wrap-around modulo index": true,
+     "prev/next are buttons with aria-labels": true,
+     "no external asset references": true,
+     "next arrow advances + card tap keeps scrollY": true
+    }
+   },
+   {
+    "trial": 3,
+    "total": 11,
+    "checks": {
+     "snap-type x mandatory": true,
+     "snap-stop always": true,
+     "overscroll-behavior-x contain": true,
+     "per-slide N/5 counters": true,
+     "no smooth scrolling anywhere": true,
+     "equal-height logic (measure + pin)": true,
+     "touch-action manipulation": true,
+     "wrap-around modulo index": true,
+     "prev/next are buttons with aria-labels": true,
+     "no external asset references": true,
+     "next arrow advances + card tap keeps scrollY": true
+    }
+   }
+  ]
+ },
+ "ab-toggle": {
+  "without": [
+   {
+    "trial": 1,
+    "total": 1,
+    "checks": {
+     "exactly one role=switch control": false,
+     "no side-picking buttons (one button total)": false,
+     "sliding thumb to left:50%": false,
+     "overshoot easing on thumb": false,
+     "stage crossfade ~450ms opacity": true,
+     "prefers-reduced-motion handled": false,
+     "touch-action manipulation + aria-label naming both sides": false,
+     "aria-checked flips on click": false,
+     "every tap flips (2nd click returns)": false
+    }
+   },
+   {
+    "trial": 2,
+    "total": 0,
+    "checks": {
+     "exactly one role=switch control": false,
+     "no side-picking buttons (one button total)": false,
+     "sliding thumb to left:50%": false,
+     "overshoot easing on thumb": false,
+     "stage crossfade ~450ms opacity": false,
+     "prefers-reduced-motion handled": false,
+     "touch-action manipulation + aria-label naming both sides": false,
+     "aria-checked flips on click": false,
+     "every tap flips (2nd click returns)": false
+    }
+   },
+   {
+    "trial": 3,
+    "total": 2,
+    "checks": {
+     "exactly one role=switch control": false,
+     "no side-picking buttons (one button total)": false,
+     "sliding thumb to left:50%": true,
+     "overshoot easing on thumb": false,
+     "stage crossfade ~450ms opacity": true,
+     "prefers-reduced-motion handled": false,
+     "touch-action manipulation + aria-label naming both sides": false,
+     "aria-checked flips on click": false,
+     "every tap flips (2nd click returns)": false
+    }
+   }
+  ],
+  "with": [
+   {
+    "trial": 1,
+    "total": 9,
+    "checks": {
+     "exactly one role=switch control": true,
+     "no side-picking buttons (one button total)": true,
+     "sliding thumb to left:50%": true,
+     "overshoot easing on thumb": true,
+     "stage crossfade ~450ms opacity": true,
+     "prefers-reduced-motion handled": true,
+     "touch-action manipulation + aria-label naming both sides": true,
+     "aria-checked flips on click": true,
+     "every tap flips (2nd click returns)": true
+    }
+   },
+   {
+    "trial": 2,
+    "total": 9,
+    "checks": {
+     "exactly one role=switch control": true,
+     "no side-picking buttons (one button total)": true,
+     "sliding thumb to left:50%": true,
+     "overshoot easing on thumb": true,
+     "stage crossfade ~450ms opacity": true,
+     "prefers-reduced-motion handled": true,
+     "touch-action manipulation + aria-label naming both sides": true,
+     "aria-checked flips on click": true,
+     "every tap flips (2nd click returns)": true
+    }
+   },
+   {
+    "trial": 3,
+    "total": 9,
+    "checks": {
+     "exactly one role=switch control": true,
+     "no side-picking buttons (one button total)": true,
+     "sliding thumb to left:50%": true,
+     "overshoot easing on thumb": true,
+     "stage crossfade ~450ms opacity": true,
+     "prefers-reduced-motion handled": true,
+     "touch-action manipulation + aria-label naming both sides": true,
+     "aria-checked flips on click": true,
+     "every tap flips (2nd click returns)": true
+    }
+   }
+  ]
+ },
+ "before-after-slider": {
+  "without": [
+   {
+    "trial": 1,
+    "total": 5,
+    "checks": {
+     "role=slider with min 0 max 100": true,
+     "before layer via clip-path inset": true,
+     "divider via transform translateX": false,
+     "travel clamped 2..98": false,
+     "touch-action none": true,
+     "setPointerCapture used": true,
+     "tap-to-glide animation present": false,
+     "notch handle ~6x24px": false,
+     "aria-valuenow starts at 50 and updates": true,
+     "keyboard: 50 ->58 (2x Right), End 98, Home 2": false,
+     "_vals": {
+      "start": "50",
+      "v58": "52",
+      "vEnd": "100",
+      "vHome": "0"
+     }
+    }
+   },
+   {
+    "trial": 2,
+    "total": 4,
+    "checks": {
+     "role=slider with min 0 max 100": true,
+     "before layer via clip-path inset": false,
+     "divider via transform translateX": false,
+     "travel clamped 2..98": false,
+     "touch-action none": true,
+     "setPointerCapture used": true,
+     "tap-to-glide animation present": false,
+     "notch handle ~6x24px": false,
+     "aria-valuenow starts at 50 and updates": true,
+     "keyboard: 50 ->58 (2x Right), End 98, Home 2": false,
+     "_vals": {
+      "start": "50",
+      "v58": "52",
+      "vEnd": "100",
+      "vHome": "0"
+     }
+    }
+   },
+   {
+    "trial": 3,
+    "total": 6,
+    "checks": {
+     "role=slider with min 0 max 100": true,
+     "before layer via clip-path inset": true,
+     "divider via transform translateX": true,
+     "travel clamped 2..98": false,
+     "touch-action none": true,
+     "setPointerCapture used": true,
+     "tap-to-glide animation present": false,
+     "notch handle ~6x24px": false,
+     "aria-valuenow starts at 50 and updates": true,
+     "keyboard: 50 ->58 (2x Right), End 98, Home 2": false,
+     "_vals": {
+      "start": "50",
+      "v58": "54",
+      "vEnd": "100",
+      "vHome": "0"
+     }
+    }
+   }
+  ],
+  "with": [
+   {
+    "trial": 1,
+    "total": 10,
+    "checks": {
+     "role=slider with min 0 max 100": true,
+     "before layer via clip-path inset": true,
+     "divider via transform translateX": true,
+     "travel clamped 2..98": true,
+     "touch-action none": true,
+     "setPointerCapture used": true,
+     "tap-to-glide animation present": true,
+     "notch handle ~6x24px": true,
+     "aria-valuenow starts at 50 and updates": true,
+     "keyboard: 50 ->58 (2x Right), End 98, Home 2": true,
+     "_vals": {
+      "start": "50",
+      "v58": "58",
+      "vEnd": "98",
+      "vHome": "2"
+     }
+    }
+   },
+   {
+    "trial": 2,
+    "total": 10,
+    "checks": {
+     "role=slider with min 0 max 100": true,
+     "before layer via clip-path inset": true,
+     "divider via transform translateX": true,
+     "travel clamped 2..98": true,
+     "touch-action none": true,
+     "setPointerCapture used": true,
+     "tap-to-glide animation present": true,
+     "notch handle ~6x24px": true,
+     "aria-valuenow starts at 50 and updates": true,
+     "keyboard: 50 ->58 (2x Right), End 98, Home 2": true,
+     "_vals": {
+      "start": "50",
+      "v58": "58",
+      "vEnd": "98",
+      "vHome": "2"
+     }
+    }
+   },
+   {
+    "trial": 3,
+    "total": 10,
+    "checks": {
+     "role=slider with min 0 max 100": true,
+     "before layer via clip-path inset": true,
+     "divider via transform translateX": true,
+     "travel clamped 2..98": true,
+     "touch-action none": true,
+     "setPointerCapture used": true,
+     "tap-to-glide animation present": true,
+     "notch handle ~6x24px": true,
+     "aria-valuenow starts at 50 and updates": true,
+     "keyboard: 50 ->58 (2x Right), End 98, Home 2": true,
+     "_vals": {
+      "start": "50",
+      "v58": "58",
+      "vEnd": "98",
+      "vHome": "2"
+     }
+    }
+   }
+  ]
+ }
+}
