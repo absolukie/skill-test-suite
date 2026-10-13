@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Before / After Comparison Slider</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #1a1a1e;
+    color: #eee;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    gap: 16px;
+  }
+
+  h1 { font-size: 1.25rem; font-weight: 600; }
+  p.hint { font-size: 0.85rem; color: #aaa; text-align: center; }
+
+  .ba-wrap {
+    width: min(90vw, 640px);
+  }
+
+  .ba {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: 12px;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,.45);
+    background: #000;
+  }
+
+  .ba svg.scene {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+  }
+
+  /* "before" scene sits on top, clipped to the left portion */
+  .ba .clip {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .ba .clip svg.scene {
+    width: 100%;
+    height: 100%;
+  }
+
+  .ba .label {
+    position: absolute;
+    top: 12px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(0,0,0,.55);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .ba .label.before { left: 12px; }
+  .ba .label.after  { right: 12px; }
+
+  .ba .divider {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    z-index: 4;
+    cursor: ew-resize;
+    outline: none;
+  }
+  .ba .divider::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -2px;
+    width: 4px;
+    background: #fff;
+    box-shadow: 0 0 8px rgba(0,0,0,.6);
+  }
+  .ba .handle {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fff;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    box-shadow: 0 2px 10px rgba(0,0,0,.5);
+    pointer-events: none;
+  }
+  .ba .divider:focus-visible .handle,
+  .ba .divider:focus .handle {
+    box-shadow: 0 0 0 3px #4da3ff, 0 2px 10px rgba(0,0,0,.5);
+  }
+
+  .readout {
+    font-size: 0.85rem;
+    color: #bbb;
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+</head>
+<body>
+
+<h1>Before / After</h1>
+
+<div class="ba-wrap">
+  <div class="ba" id="ba">
+    <!-- AFTER (bottom layer, full) -->
+    <svg class="scene" viewBox="0 0 640 480" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="skyAfter" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#2f7fe0"/>
+          <stop offset="55%" stop-color="#7db8f2"/>
+          <stop offset="100%" stop-color="#cfe8ff"/>
+        </linearGradient>
+        <linearGradient id="hillAfter" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#3f9e4d"/>
+          <stop offset="100%" stop-color="#1e6b2e"/>
+        </linearGradient>
+        <radialGradient id="sunAfter" cx="0.78" cy="0.2" r="0.25">
+          <stop offset="0%" stop-color="#fff6c9"/>
+          <stop offset="60%" stop-color="#ffd94d"/>
+          <stop offset="100%" stop-color="#ffd94d" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <rect width="640" height="480" fill="url(#skyAfter)"/>
+      <rect width="640" height="480" fill="url(#sunAfter)"/>
+      <circle cx="500" cy="95" r="34" fill="#ffdf5e"/>
+      <ellipse cx="140" cy="90" rx="70" ry="20" fill="#ffffff" opacity="0.9"/>
+      <ellipse cx="330" cy="60" rx="55" ry="16" fill="#ffffff" opacity="0.85"/>
+      <path d="M0 330 Q 160 260 340 320 T 640 300 V480 H0 Z" fill="url(#hillAfter)"/>
+      <path d="M0 390 Q 200 330 420 380 T 640 370 V480 H0 Z" fill="#14532" opacity="0.35"/>
+      <g fill="#0d4d1f">
+        <path d="M90 340 l16 -46 l16 46 z"/><rect x="103" y="338" width="6" height="16" fill="#5a3a1a"/>
+        <path d="M520 320 l14 -40 l14 40 z"/><rect x="531" y="318" width="6" height="14" fill="#5a3a1a"/>
+        <path d="M580 345 l12 -34 l12 34 z"/><rect x="589" y="343" width="5" height="12" fill="#5a3a1a"/>
+      </g>
+    </svg>
+
+    <!-- BEFORE (top layer, clipped) -->
+    <div class="clip" id="clip">
+      <svg class="scene" viewBox="0 0 640 480" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="skyBefore" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"  stop-color="#6b7078"/>
+            <stop offset="55%" stop-color="#9aa0a5"/>
+            <stop offset="100%" stop-color="#c9ccce"/>
+          </linearGradient>
+          <linearGradient id="hillBefore" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#7a7d6a"/>
+            <stop offset="100%" stop-color="#55584a"/>
+          </linearGradient>
+          <radialGradient id="sunBefore" cx="0.78" cy="0.2" r="0.25">
+            <stop offset="0%" stop-color="#e8e6da"/>
+            <stop offset="100%" stop-color="#e8e6da" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="640" height="480" fill="url(#skyBefore)"/>
+        <rect width="640" height="480" fill="url(#sunBefore)"/>
+        <circle cx="500" cy="95" r="34" fill="#d8d5c8"/>
+        <ellipse cx="140" cy="90" rx="70" ry="20" fill="#b9bcbe" opacity="0.9"/>
+        <ellipse cx="330" cy="60" rx="55" ry="16" fill="#b9bcbe" opacity="0.85"/>
+        <path d="M0 330 Q 160 260 340 320 T 640 300 V480 H0 Z" fill="url(#hillBefore)"/>
+        <g fill="#43463c">
+          <path d="M90 340 l16 -46 l16 46 z"/><rect x="103" y="338" width="6" height="16" fill="#4a3826"/>
+          <path d="M520 320 l14 -40 l14 40 z"/><rect x="531" y="318" width="6" height="14" fill="#4a3826"/>
+          <path d="M580 345 l12 -34 l12 34 z"/><rect x="589" y="343" width="5" height="12" fill="#4a3826"/>
+        </g>
+      </svg>
+    </div>
+
+    <span class="label before">Unedited</span>
+    <span class="label after">Edited</span>
+
+    <div class="divider" id="divider" tabindex="0" role="slider"
+         aria-label="Comparison slider"
+         aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"
+         aria-valuetext="50% unedited, 50% edited">
+      <div class="handle">&#8596;</div>
+    </div>
+  </div>
+</div>
+
+<div class="readout" id="readout">50% Unedited &middot; 50% Edited</div>
+<p class="hint">Drag the handle, click anywhere on the image, or focus the handle and use the arrow keys (Shift for bigger steps). Home / End jump to the edges.</p>
+
+<script>
+(function () {
+  var ba = document.getElementById('ba');
+  var clip = document.getElementById('clip');
+  var divider = document.getElementById('divider');
+  var readout = document.getElementById('readout');
+  var pos = 50; // percent
+  var dragging = false;
+
+  function clamp(v) { return Math.max(0, Math.min(100, v)); }
+
+  function render() {
+    clip.style.width = pos + '%';
+    divider.style.left = pos + '%';
+    var r = Math.round(pos);
+    divider.setAttribute('aria-valuenow', r);
+    divider.setAttribute('aria-valuetext', r + '% unedited, ' + (100 - r) + '% edited');
+    readout.textContent = r + '% Unedited \u00B7 ' + (100 - r) + '% Edited';
+  }
+
+  function setFromClientX(clientX) {
+    var rect = ba.getBoundingClientRect();
+    pos = clamp(((clientX - rect.left) / rect.width) * 100);
+    render();
+  }
+
+  ba.addEventListener('pointerdown', function (e) {
+    dragging = true;
+    ba.setPointerCapture(e.pointerId);
+    setFromClientX(e.clientX);
+    divider.focus({ preventScroll: true });
+  });
+  ba.addEventListener('pointermove', function (e) {
+    if (dragging) setFromClientX(e.clientX);
+  });
+  ['pointerup', 'pointercancel'].forEach(function (t) {
+    ba.addEventListener(t, function () { dragging = false; });
+  });
+
+  divider.addEventListener('keydown', function (e) {
+    var step = e.shiftKey ? 10 : 1;
+    var handled = true;
+    switch (e.key) {
+      case 'ArrowLeft':
+      case 'ArrowDown':
+        pos = clamp(pos - step); break;
+      case 'ArrowRight':
+      case 'ArrowUp':
+        pos = clamp(pos + step); break;
+      case 'Home':
+        pos = 0; break;
+      case 'End':
+        pos = 100; break;
+      default:
+        handled = false;
+    }
+    if (handled) {
+      e.preventDefault();
+      render();
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
