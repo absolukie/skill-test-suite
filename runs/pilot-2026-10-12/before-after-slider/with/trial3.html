@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Before / After — Comparison Slider</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: #14161a;
+    color: #e8eaed;
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+  }
+  main { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 6px; }
+  p.sub { margin: 0 0 18px; color: #9aa0a6; font-size: 14px; line-height: 1.5; }
+
+  /* ---------- Before/After slider (per skill spec) ---------- */
+  .ba {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    border-radius: 12px;
+    touch-action: none;              /* slider owns every touch from pointerdown */
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: ew-resize;
+    outline: none;
+    background: #000;
+  }
+  .ba:focus-visible { box-shadow: 0 0 0 3px #8ab4f8; }
+
+  .ba .layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;            /* browser never hijacks the gesture */
+  }
+  .ba .layer svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  /* Top layer: BEFORE, clipped in pixel space */
+  .ba .ba-before { will-change: clip-path; }
+
+  /* Divider: moved only via transform: translateX(px) — no layout, ever */
+  .ba-divider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    will-change: transform;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .ba-line {
+    position: absolute;
+    top: 0;
+    left: -1px;
+    width: 2px;
+    height: 100%;
+    background: #fff;
+    box-shadow: 0 0 6px rgba(0,0,0,.45);
+  }
+  /* The Notch: 6x24px white rounded tick — no circle, no chevrons, no background */
+  .ba-handle {
+    position: absolute;
+    top: 50%;
+    left: -3px;                       /* 6px wide, centered on the 2px line */
+    width: 6px;
+    height: 24px;
+    margin-top: -12px;
+    background: #fff;
+    border-radius: 3px;
+    box-shadow: 0 1px 5px rgba(0,0,0,.55);
+    transition: transform 120ms ease-out;
+    transform-origin: center;
+  }
+  .ba.dragging .ba-handle { transform: scale(1.35); }
+
+  /* Labels */
+  .ba-tag {
+    position: absolute;
+    top: 10px;
+    z-index: 4;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(10,10,12,.55);
+    color: #fff;
+    pointer-events: none;
+    backdrop-filter: blur(2px);
+  }
+  .tag-before { left: 10px; }
+  .tag-after  { right: 10px; }
+
+  .ba-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 12px;
+    transform: translateX(-50%);
+    z-index: 4;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(10,10,12,.55);
+    color: #fff;
+    pointer-events: none;
+    transition: opacity 400ms ease;
+  }
+  .ba-hint.gone { opacity: 0; }
+
+  .filler { color: #5f6368; font-size: 13px; line-height: 1.7; margin-top: 28px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Before / After</h1>
+  <p class="sub">Drag the divider, tap anywhere to glide there, or focus the image and use
+     &larr; / &rarr; (nudge 4%), Home and End. Vertical swipes starting on the image still scroll the page.</p>
+
+  <div class="ba" id="ba" role="slider" tabindex="0"
+       aria-label="Before and after comparison slider"
+       aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"
+       aria-valuetext="50 percent unedited">
+    <!-- base layer: AFTER (right side) -->
+    <div class="layer ba-after" aria-hidden="true">
+      <svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" focusable="false">
+        <defs>
+          <linearGradient id="skyAfter" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2b6cb0"/>
+            <stop offset=".55" stop-color="#dd6b20"/>
+            <stop offset="1" stop-color="#f6ad55"/>
+          </linearGradient>
+          <linearGradient id="seaAfter" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2c5282"/>
+            <stop offset="1" stop-color="#1a365d"/>
+          </linearGradient>
+        </defs>
+        <rect width="300" height="130" fill="url(#skyAfter)"/>
+        <circle cx="228" cy="86" r="24" fill="#fbd38d"/>
+        <circle cx="228" cy="86" r="34" fill="#fbd38d" opacity=".25"/>
+        <path d="M0 130 L70 74 L128 130 Z" fill="#4a2c14"/>
+        <path d="M84 130 L168 58 L252 130 Z" fill="#5c3a1a"/>
+        <path d="M168 58 L188 76 L168 70 L150 78 Z" fill="#fff5eb"/>
+        <rect y="130" width="300" height="70" fill="url(#seaAfter)"/>
+        <rect y="140" width="300" height="3" fill="#f6ad55" opacity=".5"/>
+        <rect y="152" width="300" height="2" fill="#f6ad55" opacity=".3"/>
+        <rect y="166" width="300" height="2" fill="#f6ad55" opacity=".18"/>
+      </svg>
+    </div>
+
+    <!-- top layer: BEFORE (left side), clipped -->
+    <div class="layer ba-before" id="baBefore" aria-hidden="true">
+      <svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" focusable="false">
+        <defs>
+          <linearGradient id="skyBefore" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#8d9499"/>
+            <stop offset=".55" stop-color="#a7adb2"/>
+            <stop offset="1" stop-color="#bcc1c5"/>
+          </linearGradient>
+          <linearGradient id="seaBefore" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#767c82"/>
+            <stop offset="1" stop-color="#565b60"/>
+          </linearGradient>
+        </defs>
+        <rect width="300" height="130" fill="url(#skyBefore)"/>
+        <circle cx="228" cy="86" r="24" fill="#d4d8db"/>
+        <circle cx="228" cy="86" r="34" fill="#d4d8db" opacity=".25"/>
+        <path d="M0 130 L70 74 L128 130 Z" fill="#5a5d5f"/>
+        <path d="M84 130 L168 58 L252 130 Z" fill="#686b6d"/>
+        <path d="M168 58 L188 76 L168 70 L150 78 Z" fill="#e3e6e8"/>
+        <rect y="130" width="300" height="70" fill="url(#seaBefore)"/>
+        <rect y="140" width="300" height="3" fill="#c9ced2" opacity=".5"/>
+        <rect y="152" width="300" height="2" fill="#c9ced2" opacity=".3"/>
+        <rect y="166" width="300" height="2" fill="#c9ced2" opacity=".18"/>
+      </svg>
+    </div>
+
+    <div class="ba-divider" id="baDivider">
+      <div class="ba-line"></div>
+      <div class="ba-handle"></div>
+    </div>
+
+    <span class="ba-tag tag-before">Unedited</span>
+    <span class="ba-tag tag-after">Edited</span>
+    <span class="ba-hint" id="baHint">Drag</span>
+  </div>
+
+  <p class="filler">Filler so the page can scroll: the slider owns horizontal drags itself, while a
+     mostly-vertical swipe that starts on the image scrolls this page 1:1, with momentum on release —
+     exactly the mid-scroll behaviour the spec calls for. Lorem ipsum dolor sit amet, consectetur
+     adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+     minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+     Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+     pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+     mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem
+     accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore
+     veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+</main>
+
+<script>
+(function () {
+  var MIN = 2, MAX = 98;                 // clamped travel, percent
+  var ba       = document.getElementById('ba');
+  var before   = document.getElementById('baBefore');
+  var divider  = document.getElementById('baDivider');
+  var hint     = document.getElementById('baHint');
+
+  var pos = 50;                          // percent
+  var rafPending = false;
+
+  function clamp(v) { return v < MIN ? MIN : (v > MAX ? MAX : v); }
+
+  function render() {
+    rafPending = false;
+    var w = ba.clientWidth;
+    var x = pos / 100 * w;               // pixel space only — no layout changes
+    divider.style.transform = 'translateX(' + x + 'px)';
+    before.style.clipPath = 'inset(0 ' + (w - x) + 'px 0 0)';
+    var now = Math.round(pos);
+    ba.setAttribute('aria-valuenow', now);
+    ba.setAttribute('aria-valuetext', now + ' percent unedited');
+  }
+  function requestRender() {
+    if (!rafPending) { rafPending = true; requestAnimationFrame(render); }
+  }
+  function setPos(p) { pos = clamp(p); requestRender(); }
+
+  function posFromClientX(clientX) {
+    var r = ba.getBoundingClientRect();
+    return (clientX - r.left) / r.width * 100;
+  }
+
+  /* ----- tap glide: ease-out ~380ms; grabbing mid-glide cancels ----- */
+  var glideId = null;
+  function cancelGlide() {
+    if (glideId !== null) { cancelAnimationFrame(glideId); glideId = null; }
+  }
+  function glideTo(target) {
+    cancelGlide();
+    var from = pos, to = clamp(target), start = null, DUR = 380;
+    function step(ts) {
+      if (start === null) start = ts;
+      var t = (ts - start) / DUR;
+      if (t >= 1) { pos = to; render(); glideId = null; return; }
+      var e = 1 - Math.pow(1 - t, 3);    // ease-out cubic
+      pos = from + (to - from) * e;
+      render();
+      glideId = requestAnimationFrame(step);
+    }
+    glideId = requestAnimationFrame(step);
+  }
+
+  /* ----- manual vertical scroll momentum ----- */
+  var momentumId = null;
+  function cancelMomentum() {
+    if (momentumId !== null) { cancelAnimationFrame(momentumId); momentumId = null; }
+  }
+  function maxScroll() {
+    return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  }
+  function startMomentum(v) {            // v: px per ms, + means content should keep moving up (scroll down)
+    cancelMomentum();
+    var last = null;
+    function step(ts) {
+      if (last === null) last = ts;
+      var dt = ts - last; last = ts;
+      var y = window.scrollY + v * dt;
+      if (y <= 0 || y >= maxScroll()) {
+        window.scrollTo(0, Math.max(0, Math.min(maxScroll(), y)));
+        momentumId = null; return;
+      }
+      window.scrollTo(0, y);
+      v *= Math.pow(0.5, dt / 180);      // decay
+      if (Math.abs(v) < 0.02) { momentumId = null; return; }
+      momentumId = requestAnimationFrame(step);
+    }
+    momentumId = requestAnimationFrame(step);
+  }
+
+  /* ----- pointer gestures ----- */
+  var g = null;                          // active gesture state
+  function onDown(e) {
+    cancelGlide();
+    cancelMomentum();
+    ba.setPointerCapture(e.pointerId);   // slider owns the gesture, even mid-scroll
+    ba.classList.add('dragging');
+    hint.classList.add('gone');          // hint fades permanently after the first grab
+    g = {
+      id: e.pointerId,
+      startX: e.clientX, startY: e.clientY,
+      lastX: e.clientX,  lastY: e.clientY,
+      startT: performance.now(),
+      mode: null,                        // null = undecided, 'h' = divider, 'v' = page scroll
+      samples: [{ y: e.clientY, t: performance.now() }]
+    };
+  }
+
+  function onMove(e) {
+    if (!g || e.pointerId !== g.id) return;
+    var dx = e.clientX - g.startX;
+    var dy = e.clientY - g.startY;
+
+    if (g.mode === null) {
+      if (Math.abs(dx) < 12 && Math.abs(dy) < 12) return;   // wait for the 12px lock
+      g.mode = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v';
+    }
+
+    if (g.mode === 'h') {
+      setPos(posFromClientX(e.clientX));                   // 1:1 finger tracking
+    } else {
+      // vertical: scroll the page 1:1 ourselves (touch-action:none killed native scroll)
+      var stepY = g.lastY - e.clientY;
+      var limit = maxScroll();
+      var y = window.scrollY + stepY;
+      window.scrollTo(0, y < 0 ? 0 : (y > limit ? limit : y));
+      var now = performance.now();
+      g.samples.push({ y: e.clientY, t: now });
+      while (g.samples.length > 2 && now - g.samples[0].t > 100) g.samples.shift();
+    }
+    g.lastX = e.clientX; g.lastY = e.clientY;
+  }
+
+  function onUp(e) {
+    if (!g || e.pointerId !== g.id) return;
+    var dx = e.clientX - g.startX;
+    var dy = e.clientY - g.startY;
+    var dist = Math.sqrt(dx * dx + dy * dy);
+    var dur = performance.now() - g.startT;
+    var mode = g.mode;
+
+    if (mode === null && dist < 6 && dur < 300) {
+      glideTo(posFromClientX(e.clientX));                  // it was a tap: glide there
+    } else if (mode === 'v' && g.samples.length > 1) {
+      var s0 = g.samples[0], s1 = g.samples[g.samples.length - 1];
+      var dt = s1.t - s0.t;
+      if (dt > 0) {
+        var v = (s0.y - s1.y) / dt;                        // finger velocity -> scroll velocity
+        if (Math.abs(v) > 0.05) startMomentum(v);
+      }
+    }
+    g = null;
+    ba.classList.remove('dragging');
+  }
+
+  ba.addEventListener('pointerdown', onDown);
+  ba.addEventListener('pointermove', onMove);
+  ba.addEventListener('pointerup', onUp);
+  ba.addEventListener('pointercancel', onUp);
+
+  /* ----- keyboard: arrows nudge ±4%, Home/End to the clamped extremes ----- */
+  ba.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft')       { cancelGlide(); setPos(pos - 4); e.preventDefault(); }
+    else if (e.key === 'ArrowRight') { cancelGlide(); setPos(pos + 4); e.preventDefault(); }
+    else if (e.key === 'Home')       { cancelGlide(); setPos(MIN);     e.preventDefault(); }
+    else if (e.key === 'End')        { cancelGlide(); setPos(MAX);     e.preventDefault(); }
+  });
+
+  window.addEventListener('resize', requestRender);
+  render();
+})();
+</script>
+</body>
+</html>
