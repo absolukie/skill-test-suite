@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neighborhood Coffee Spots</title>
+<style>
+  :root{
+    --ink:#2b2118;
+    --paper:#faf5ee;
+    --card:#ffffff;
+    --accent:#a34d28;
+    --accent-dark:#7e3a1d;
+    --muted:#7c6f61;
+    --line:#e6dacb;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:var(--paper);}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--ink);
+    padding:20px 16px 32px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{max-width:390px;margin:0 auto;}
+  h1{
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:26px;
+    line-height:1.15;
+    margin-bottom:6px;
+  }
+  .sub{color:var(--muted);font-size:14px;margin-bottom:18px;}
+
+  /* Readout: shows selected spot name */
+  .readout{
+    background:#fff8f0;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:15px;
+    min-height:48px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .readout .label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;}
+  .readout .value{font-weight:700;color:var(--accent-dark);}
+  .readout .hint{color:var(--muted);font-weight:400;font-size:14px;}
+
+  /* Carousel */
+  .stage{position:relative;}
+  .viewport{
+    overflow:hidden;
+    border-radius:var(--radius);
+  }
+  .track{
+    display:flex;
+    transition:transform .38s cubic-bezier(.25,.8,.3,1);
+    will-change:transform;
+    touch-action:pan-y;
+  }
+  .card{
+    flex:0 0 100%;
+    width:100%;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    cursor:pointer;
+    text-align:left;
+    font:inherit;
+    color:inherit;
+    padding:0;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .card:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+  .card.selected{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset;}
+  .card .art{
+    height:150px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:64px;
+    user-select:none;
+  }
+  .card .body{padding:16px 18px 20px;}
+  .card h2{
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:22px;
+    margin-bottom:4px;
+  }
+  .card .hood{color:var(--accent);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;}
+  .card p{font-size:15px;line-height:1.5;color:#4c4036;}
+  .card .meta{
+    display:flex;gap:14px;flex-wrap:wrap;
+    margin-top:14px;font-size:13px;color:var(--muted);
+  }
+  .card .meta b{color:var(--ink);font-weight:600;}
+
+  /* Arrows */
+  .arrow{
+    position:absolute;
+    top:64px;
+    width:44px;height:44px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    background:rgba(255,255,255,.94);
+    color:var(--ink);
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 2px 10px rgba(43,33,24,.14);
+    z-index:2;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .arrow svg{width:20px;height:20px;display:block;}
+  .arrow:active{background:#f3e9db;}
+  .arrow.prev{left:-6px;}
+  .arrow.next{right:-6px;}
+
+  /* Footer row: dots + counter */
+  .foot{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:14px;
+  }
+  .dots{display:flex;gap:7px;}
+  .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:#d8c9b4;border:none;padding:0;cursor:pointer;
+    touch-action:manipulation;
+  }
+  .dot.on{background:var(--accent);width:22px;border-radius:99px;}
+  .counter{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;}
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Neighborhood Coffee Spots</h1>
+  <p class="sub">Five local favorites. Swipe or use the arrows, and tap a card to pick your spot.</p>
+
+  <div class="readout" id="readout" aria-live="polite">
+    <span class="label">Selected</span>
+    <span class="value" id="readoutValue"><span class="hint">Nothing yet, tap a card</span></span>
+  </div>
+
+  <div class="stage">
+    <div class="viewport" id="viewport">
+      <div class="track" id="track">
+
+        <button class="card" type="button" data-name="Ember &amp; Oak">
+          <div class="art" style="background:#f6e3cf" aria-hidden="true">☕</div>
+          <div class="body">
+            <h2>Ember &amp; Oak</h2>
+            <div class="hood">Elmwood</div>
+            <p>A wood-fired roastery vibe with big communal tables and the best cardamom latte on this side of town.</p>
+            <div class="meta"><span><b>0.3 mi</b> away</span><span><b>7a–6p</b> daily</span><span><b>★ 4.8</b></span></div>
+          </div>
+        </button>
+
+        <button class="card" type="button" data-name="The Daily Grindhouse">
+          <div class="art" style="background:#e5ecdc" aria-hidden="true">🌿</div>
+          <div class="body">
+            <h2>The Daily Grindhouse</h2>
+            <div class="hood">Junction</div>
+            <p>Plant-filled and laptop-friendly, with a rotating single-origin pour-over bar and oat-milk everything.</p>
+            <div class="meta"><span><b>0.6 mi</b> away</span><span><b>6a–8p</b> daily</span><span><b>★ 4.7</b></span></div>
+          </div>
+        </button>
+
+        <button class="card" type="button" data-name="Blue Door Coffee">
+          <div class="art" style="background:#dde8f2" aria-hidden="true">🚪</div>
+          <div class="body">
+            <h2>Blue Door Coffee</h2>
+            <div class="hood">Old Mill District</div>
+            <p>Blink and you will miss it. A tiny counter behind a bright blue door serving serious espresso and fresh scones.</p>
+            <div class="meta"><span><b>0.9 mi</b> away</span><span><b>7a–3p</b> Tue–Sun</span><span><b>★ 4.9</b></span></div>
+          </div>
+        </button>
+
+        <button class="card" type="button" data-name="Night Owl Espresso">
+          <div class="art" style="background:#e7e0f0" aria-hidden="true">🦉</div>
+          <div class="body">
+            <h2>Night Owl Espresso</h2>
+            <div class="hood">University Heights</div>
+            <p>Open late for the study crowd. Board games on the shelf, bottomless drip refills, and a very patient staff.</p>
+            <div class="meta"><span><b>1.2 mi</b> away</span><span><b>8a–12a</b> daily</span><span><b>★ 4.6</b></span></div>
+          </div>
+        </button>
+
+        <button class="card" type="button" data-name="Sunbeam Roasters">
+          <div class="art" style="background:#fbf0cd" aria-hidden="true">🌞</div>
+          <div class="body">
+            <h2>Sunbeam Roasters</h2>
+            <div class="hood">Riverside</div>
+            <p>A sunny corner spot roasting beans in-house every morning. Grab a bag to go and sit by the water.</p>
+            <div class="meta"><span><b>1.5 mi</b> away</span><span><b>7a–5p</b> daily</span><span><b>★ 4.8</b></span></div>
+          </div>
+        </button>
+
+      </div>
+    </div>
+
+    <button class="arrow prev" id="prevBtn" type="button" aria-label="Previous spot">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <button class="arrow next" id="nextBtn" type="button" aria-label="Next spot">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+
+  <div class="foot">
+    <div class="dots" id="dots" role="tablist" aria-label="Choose a spot"></div>
+    <div class="counter" id="counter">1 / 5</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var track = document.getElementById('track');
+  var viewport = document.getElementById('viewport');
+  var cards = Array.prototype.slice.call(track.children);
+  var counter = document.getElementById('counter');
+  var dotsHost = document.getElementById('dots');
+  var readoutValue = document.getElementById('readoutValue');
+  var total = cards.length;
+  var idx = 0;
+
+  // Build dots
+  var dots = cards.map(function(_, i){
+    var d = document.createElement('button');
+    d.className = 'dot';
+    d.type = 'button';
+    d.setAttribute('aria-label', 'Go to spot ' + (i + 1));
+    d.addEventListener('click', function(){ go(i); });
+    dotsHost.appendChild(d);
+    return d;
+  });
+
+  function render(){
+    track.style.transform = 'translateX(' + (-idx * 100) + '%)';
+    counter.textContent = (idx + 1) + ' / ' + total;
+    dots.forEach(function(d, i){ d.classList.toggle('on', i === idx); });
+  }
+  function go(i){
+    idx = Math.max(0, Math.min(total - 1, i));
+    render();
+  }
+  function step(d){ go(idx + d); }
+
+  document.getElementById('prevBtn').addEventListener('click', function(){ step(-1); });
+  document.getElementById('nextBtn').addEventListener('click', function(){ step(1); });
+
+  // Tap a card to select it: name goes into the readout above
+  cards.forEach(function(card){
+    card.addEventListener('click', function(){
+      cards.forEach(function(c){ c.classList.remove('selected'); });
+      card.classList.add('selected');
+      readoutValue.textContent = card.getAttribute('data-name');
+    });
+  });
+
+  // Swipe: pointer drag on the viewport, with click suppression after a real drag
+  var startX = null, startY = null, dragging = false, moved = false;
+  viewport.addEventListener('pointerdown', function(e){
+    startX = e.clientX; startY = e.clientY; dragging = true; moved = false;
+  });
+  viewport.addEventListener('pointermove', function(e){
+    if (!dragging || startX === null) return;
+    var dx = e.clientX - startX, dy = e.clientY - startY;
+    if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy)) moved = true;
+  });
+  function endSwipe(e){
+    if (!dragging || startX === null) return;
+    var dx = e.clientX - startX;
+    if (moved && Math.abs(dx) >= 45) step(dx < 0 ? 1 : -1);
+    dragging = false; startX = null;
+    if (moved){
+      // Swallow the click that follows a drag so it does not also select
+      var swallow = function(ev){ ev.stopPropagation(); ev.preventDefault(); viewport.removeEventListener('click', swallow, true); };
+      viewport.addEventListener('click', swallow, true);
+      setTimeout(function(){ viewport.removeEventListener('click', swallow, true); }, 350);
+    }
+    moved = false;
+  }
+  viewport.addEventListener('pointerup', endSwipe);
+  viewport.addEventListener('pointercancel', function(){ dragging = false; startX = null; moved = false; });
+
+  // Keyboard arrows when the carousel region has focus
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowLeft') step(-1);
+    else if (e.key === 'ArrowRight') step(1);
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
