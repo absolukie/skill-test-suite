@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Before and After Photo Comparison</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17201d;
+      --muted: #62706a;
+      --paper: #f4f1ea;
+      --panel: #fffdf8;
+      --line: #d8d2c4;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: auto; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 34px 0 72px;
+    }
+
+    header { margin-bottom: 22px; }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 6vw, 4.5rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    header p {
+      max-width: 680px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.55;
+    }
+
+    /*
+      Before/after slider.
+      The box has a fixed 3:2 aspect ratio. Only the divider transform and
+      the before layer's pixel clip change; the layout itself never moves.
+    */
+    .ba {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      overflow: hidden;
+      border-radius: 8px;
+      background: #18211f;
+      box-shadow: 0 24px 60px rgb(23 32 29 / 0.18);
+      cursor: ew-resize;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      outline: none;
+    }
+
+    .ba:focus-visible {
+      box-shadow: 0 0 0 4px #ffffff, 0 0 0 8px #1f766e, 0 24px 60px rgb(23 32 29 / 0.18);
+    }
+
+    .ba .photo {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .ba .photo-after { z-index: 1; }
+
+    .ba .photo-before {
+      z-index: 2;
+      clip-path: inset(0 50% 0 0);
+    }
+
+    .ba-divider {
+      position: absolute;
+      z-index: 4;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 100%;
+      pointer-events: none;
+      will-change: transform;
+    }
+
+    .ba-line {
+      position: absolute;
+      top: 0;
+      left: -1px;
+      width: 2px;
+      height: 100%;
+      background: #ffffff;
+      box-shadow: 0 0 10px rgb(0 0 0 / 0.38);
+    }
+
+    /* The Notch: a plain 6 by 24 pixel white tick, with no circle or chevrons. */
+    .ba-handle {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 6px;
+      height: 24px;
+      border-radius: 999px;
+      background: #ffffff;
+      box-shadow: 0 2px 9px rgb(0 0 0 / 0.42);
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .ba.is-dragging .ba-handle {
+      transform: translate(-50%, -50%) scale(1.35);
+    }
+
+    .ba-tag,
+    .ba-hint {
+      position: absolute;
+      z-index: 5;
+      border-radius: 999px;
+      background: rgb(13 20 18 / 0.68);
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      line-height: 1;
+      pointer-events: none;
+      backdrop-filter: blur(8px);
+    }
+
+    .ba-tag {
+      top: 14px;
+      padding: 8px 11px;
+    }
+
+    .tag-before { left: 14px; }
+    .tag-after { right: 14px; }
+
+    .ba-hint {
+      left: 50%;
+      bottom: 14px;
+      padding: 8px 12px;
+      transform: translateX(-50%);
+      transition: opacity 260ms ease;
+    }
+
+    .ba.has-grabbed .ba-hint { opacity: 0; }
+
+    .notes {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .notes article {
+      min-height: 190px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .notes h2 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+    }
+
+    .notes p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 640px) {
+      main {
+        width: min(100% - 24px, 1120px);
+        padding-top: 24px;
+      }
+
+      .notes { grid-template-columns: 1fr; }
+      .ba-tag { top: 10px; }
+      .tag-before { left: 10px; }
+      .tag-after { right: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Trailhead overlook</h1>
+      <p>Drag across the photograph to compare the muted original on the left with the finished edit on the right. The comparison can also be controlled entirely from the keyboard.</p>
+    </header>
+
+    <div
+      class="ba"
+      id="beforeAfter"
+      role="slider"
+      aria-label="Before and after photo comparison"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="50"
+      aria-valuetext="50 percent"
+      tabindex="0"
+    >
+      <!-- Base layer: AFTER, shown on the right as the before layer is clipped away. -->
+      <svg class="photo photo-after" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" draggable="false" aria-label="Edited photo" role="img">
+        <defs>
+          <linearGradient id="afterSky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2563eb"/>
+            <stop offset="0.48" stop-color="#38bdf8"/>
+            <stop offset="0.76" stop-color="#fbbf24"/>
+            <stop offset="1" stop-color="#f97316"/>
+          </linearGradient>
+          <linearGradient id="afterLake" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#f59e0b"/>
+            <stop offset="0.35" stop-color="#0ea5e9"/>
+            <stop offset="1" stop-color="#075985"/>
+          </linearGradient>
+          <radialGradient id="afterSun" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stop-color="#fff7cc"/>
+            <stop offset="0.55" stop-color="#fde047"/>
+            <stop offset="1" stop-color="#f59e0b" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="1200" height="800" fill="url(#afterSky)"/>
+        <circle cx="806" cy="318" r="132" fill="url(#afterSun)"/>
+        <circle cx="806" cy="318" r="54" fill="#fef08a"/>
+        <path d="M0 468 L205 286 L342 414 L510 218 L704 452 L858 292 L1012 424 L1200 274 L1200 800 L0 800 Z" fill="#164e63"/>
+        <path d="M0 536 L178 402 L356 520 L548 348 L744 542 L914 404 L1064 514 L1200 420 L1200 800 L0 800 Z" fill="#14532d"/>
+        <rect y="596" width="1200" height="204" fill="url(#afterLake)" opacity="0.92"/>
+        <path d="M90 654 C260 630 392 680 560 654 C734 628 876 678 1116 646" fill="none" stroke="#bae6fd" stroke-width="10" stroke-linecap="round" opacity="0.55"/>
+        <path d="M154 716 C330 694 478 730 664 708 C820 690 962 724 1086 704" fill="none" stroke="#e0f2fe" stroke-width="7" stroke-linecap="round" opacity="0.42"/>
+        <g fill="#052e16">
+          <path d="M82 588 L112 496 L142 588 Z"/><path d="M132 604 L166 486 L200 604 Z"/>
+          <path d="M976 596 L1010 488 L1044 596 Z"/><path d="M1034 610 L1068 506 L1102 610 Z"/>
+        </g>
+      </svg>
+
+      <!-- Top layer: BEFORE, clipped in pixel space so only the left side is visible. -->
+      <svg class="photo photo-before" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" draggable="false" aria-label="Unedited photo" role="img">
+        <defs>
+          <linearGradient id="beforeSky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#87979e"/>
+            <stop offset="0.48" stop-color="#b6bcb4"/>
+            <stop offset="0.76" stop-color="#d4cfb9"/>
+            <stop offset="1" stop-color="#beb49d"/>
+          </linearGradient>
+          <linearGradient id="beforeLake" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#a8a58f"/>
+            <stop offset="0.35" stop-color="#7d9296"/>
+            <stop offset="1" stop-color="#5d7278"/>
+          </linearGradient>
+          <radialGradient id="beforeSun" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stop-color="#eee9d4"/>
+            <stop offset="0.55" stop-color="#d8d2b8"/>
+            <stop offset="1" stop-color="#b9b294" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="1200" height="800" fill="url(#beforeSky)"/>
+        <circle cx="806" cy="318" r="132" fill="url(#beforeSun)"/>
+        <circle cx="806" cy="318" r="54" fill="#e7e2cb"/>
+        <path d="M0 468 L205 286 L342 414 L510 218 L704 452 L858 292 L1012 424 L1200 274 L1200 800 L0 800 Z" fill="#66716e"/>
+        <path d="M0 536 L178 402 L356 520 L548 348 L744 542 L914 404 L1064 514 L1200 420 L1200 800 L0 800 Z" fill="#687362"/>
+        <rect y="596" width="1200" height="204" fill="url(#beforeLake)" opacity="0.92"/>
+        <path d="M90 654 C260 630 392 680 560 654 C734 628 876 678 1116 646" fill="none" stroke="#d5ddd7" stroke-width="10" stroke-linecap="round" opacity="0.5"/>
+        <path d="M154 716 C330 694 478 730 664 708 C820 690 962 724 1086 704" fill="none" stroke="#e4e7df" stroke-width="7" stroke-linecap="round" opacity="0.38"/>
+        <g fill="#46524b">
+          <path d="M82 588 L112 496 L142 588 Z"/><path d="M132 604 L166 486 L200 604 Z"/>
+          <path d="M976 596 L1010 488 L1044 596 Z"/><path d="M1034 610 L1068 506 L1102 610 Z"/>
+        </g>
+      </svg>
+
+      <div class="ba-divider" aria-hidden="true">
+        <div class="ba-line"></div>
+        <div class="ba-handle"></div>
+      </div>
+
+      <span class="ba-tag tag-before">Unedited</span>
+      <span class="ba-tag tag-after">Edited</span>
+      <span class="ba-hint" aria-hidden="true">Drag</span>
+    </div>
+
+    <section class="notes" aria-label="Comparison notes">
+      <article>
+        <h2>What changed</h2>
+        <p>The edit restores contrast, warms the late light, and brings the lake and ridge lines back into balance without changing the underlying composition.</p>
+      </article>
+      <article>
+        <h2>Keyboard controls</h2>
+        <p>Focus the image, use the left and right arrow keys to move by four percent, or use Home and End to jump to either end of the comparison range.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const slider = document.getElementById('beforeAfter');
+      const beforeLayer = slider.querySelector('.photo-before');
+      const divider = slider.querySelector('.ba-divider');
+
+      const MIN_PCT = 2;
+      const MAX_PCT = 98;
+      const LOCK_PX = 12;
+      const TAP_MAX_MOVE_PX = 6;
+      const TAP_MAX_MS = 300;
+      const TAP_GLIDE_MS = 380;
+
+      let pct = 50;
+      let drag = null;
+      let rafId = 0;
+      let pendingClientX = 0;
+      let glideId = 0;
+      let momentumId = 0;
+
+      const clampPct = (value) => Math.min(MAX_PCT, Math.max(MIN_PCT, value));
+
+      function render() {
+        const width = slider.clientWidth;
+        const x = (pct / 100) * width;
+
+        // Pixel-space updates only: transform for the divider and a pixel
+        // clip for the before layer. The container's layout never changes.
+        divider.style.transform = `translateX(${x}px)`;
+        beforeLayer.style.clipPath = `inset(0 ${Math.max(0, width - x)}px 0 0)`;
+        slider.setAttribute('aria-valuenow', String(Math.round(pct)));
+        slider.setAttribute('aria-valuetext', `${Math.round(pct)} percent`);
+      }
+
+      function setPct(value) {
+        pct = clampPct(value);
+        render();
+      }
+
+      function pctFromClientX(clientX) {
+        const rect = slider.getBoundingClientRect();
+        return clampPct(((clientX - rect.left) / rect.width) * 100);
+      }
+
+      function cancelGlide() {
+        glideId += 1;
+      }
+
+      function cancelMomentum() {
+        momentumId += 1;
+      }
+
+      function glideTo(target, duration = TAP_GLIDE_MS) {
+        const thisGlide = ++glideId;
+        const from = pct;
+        const destination = clampPct(target);
+        const startedAt = performance.now();
+
+        function frame(now) {
+          if (thisGlide !== glideId) return;
+          const elapsed = Math.min(1, (now - startedAt) / duration);
+          const eased = 1 - Math.pow(1 - elapsed, 3);
+          pct = from + (destination - from) * eased;
+          render();
+          if (elapsed < 1) requestAnimationFrame(frame);
+        }
+
+        requestAnimationFrame(frame);
+      }
+
+      function schedulePointerRender(clientX) {
+        pendingClientX = clientX;
+        if (rafId) return;
+
+        rafId = requestAnimationFrame(() => {
+          rafId = 0;
+          // Direct 1:1 tracking: the divider follows the pointer position
+          // with no smoothing or catch-up animation.
+          setPct(pctFromClientX(pendingClientX));
+        });
+      }
+
+      function startMomentum(initialVelocity) {
+        const thisMomentum = ++momentumId;
+        let velocity = initialVelocity;
+        let previousTime = performance.now();
+
+        function frame(now) {
+          if (thisMomentum !== momentumId) return;
+
+          const elapsed = Math.min(50, now - previousTime);
+          previousTime = now;
+          const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+          const nextScroll = Math.min(maxScroll, Math.max(0, window.scrollY + velocity * elapsed));
+
+          window.scrollTo(0, nextScroll);
+          velocity *= Math.pow(0.94, elapsed / 16.667);
+
+          if (Math.abs(velocity) > 0.02 && nextScroll > 0 && nextScroll < maxScroll) {
+            requestAnimationFrame(frame);
+          }
+        }
+
+        requestAnimationFrame(frame);
+      }
+
+      slider.addEventListener('pointerdown', (event) => {
+        cancelGlide();
+        cancelMomentum();
+        slider.classList.add('has-grabbed', 'is-dragging');
+        slider.focus({ preventScroll: true });
+
+        try {
+          slider.setPointerCapture(event.pointerId);
+        } catch (_) {
+          // Pointer capture is an enhancement; the handlers still work if a
+          // browser declines it for a synthetic or already-ended pointer.
+        }
+
+        const now = performance.now();
+        drag = {
+          pointerId: event.pointerId,
+          startX: event.clientX,
+          startY: event.clientY,
+          lastY: event.clientY,
+          startedAt: now,
+          lastMoveAt: now,
+          maxMove: 0,
+          mode: 'undecided',
+          scrollVelocity: 0
+        };
+
+        event.preventDefault();
+      });
+
+      slider.addEventListener('pointermove', (event) => {
+        if (!drag || event.pointerId !== drag.pointerId) return;
+
+        const totalDx = event.clientX - drag.startX;
+        const totalDy = event.clientY - drag.startY;
+        drag.maxMove = Math.max(drag.maxMove, Math.hypot(totalDx, totalDy));
+
+        if (drag.mode === 'undecided' && drag.maxMove >= LOCK_PX) {
+          drag.mode = Math.abs(totalDx) >= Math.abs(totalDy) ? 'horizontal' : 'vertical';
+
+          if (drag.mode === 'horizontal') {
+            schedulePointerRender(event.clientX);
+          } else {
+            // Begin exactly where the finger began so vertical page travel
+            // remains 1:1 even across the initial direction-lock distance.
+            const scrollDelta = -totalDy;
+            window.scrollBy(0, scrollDelta);
+            const elapsed = Math.max(1, performance.now() - drag.startedAt);
+            drag.scrollVelocity = scrollDelta / elapsed;
+            drag.lastMoveAt = performance.now();
+          }
+        } else if (drag.mode === 'horizontal') {
+          schedulePointerRender(event.clientX);
+        } else if (drag.mode === 'vertical') {
+          const now = performance.now();
+          const scrollDelta = -(event.clientY - drag.lastY);
+          window.scrollBy(0, scrollDelta);
+
+          const elapsed = Math.max(1, now - drag.lastMoveAt);
+          const instantaneousVelocity = scrollDelta / elapsed;
+          drag.scrollVelocity = (drag.scrollVelocity * 0.7) + (instantaneousVelocity * 0.3);
+          drag.lastMoveAt = now;
+        }
+
+        drag.lastY = event.clientY;
+        event.preventDefault();
+      });
+
+      function finishPointer(event) {
+        if (!drag || event.pointerId !== drag.pointerId) return;
+
+        const finishedDrag = drag;
+        drag = null;
+        slider.classList.remove('is-dragging');
+
+        try {
+          if (slider.hasPointerCapture(event.pointerId)) {
+            slider.releasePointerCapture(event.pointerId);
+          }
+        } catch (_) {
+          // The capture may already have been released by the browser.
+        }
+
+        const duration = performance.now() - finishedDrag.startedAt;
+        const wasTap = finishedDrag.maxMove < TAP_MAX_MOVE_PX && duration < TAP_MAX_MS;
+
+        if (wasTap) {
+          glideTo(pctFromClientX(event.clientX), TAP_GLIDE_MS);
+        } else if (finishedDrag.mode === 'vertical' && Math.abs(finishedDrag.scrollVelocity) > 0.05) {
+          startMomentum(finishedDrag.scrollVelocity);
+        }
+      }
+
+      slider.addEventListener('pointerup', finishPointer);
+      slider.addEventListener('pointercancel', finishPointer);
+
+      slider.addEventListener('keydown', (event) => {
+        let target;
+
+        switch (event.key) {
+          case 'ArrowLeft':
+            target = pct - 4;
+            break;
+          case 'ArrowRight':
+            target = pct + 4;
+            break;
+          case 'Home':
+            target = MIN_PCT;
+            break;
+          case 'End':
+            target = MAX_PCT;
+            break;
+          default:
+            return;
+        }
+
+        event.preventDefault();
+        cancelGlide();
+        cancelMomentum();
+        setPct(target);
+      });
+
+      window.addEventListener('resize', render, { passive: true });
+      render();
+    })();
+  </script>
+</body>
+</html>
