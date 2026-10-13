@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neighborhood Coffee Spots</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f5f0ea;
+    color: #2b2118;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 40px;
+  }
+  h1 { font-size: 22px; margin-bottom: 8px; text-align: center; }
+  #readout {
+    font-size: 16px;
+    color: #7a4a21;
+    min-height: 24px;
+    margin-bottom: 16px;
+    text-align: center;
+    font-weight: 600;
+  }
+  #readout .hint { color: #a58a6d; font-weight: 400; font-size: 14px; }
+  .carousel {
+    position: relative;
+    width: 100%;
+    max-width: 390px;
+  }
+  .viewport {
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(60, 40, 20, 0.18);
+  }
+  .track {
+    display: flex;
+    transition: transform 0.35s ease;
+  }
+  .card {
+    flex: 0 0 100%;
+    padding: 28px 24px 32px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: pan-y;
+    color: #fff;
+  }
+  .card .emoji { font-size: 44px; display: block; margin-bottom: 14px; }
+  .card h2 { font-size: 24px; margin-bottom: 8px; }
+  .card p { font-size: 15px; line-height: 1.45; opacity: 0.92; }
+  .card .meta { margin-top: 14px; font-size: 13px; opacity: 0.85; }
+  .c1 { background: linear-gradient(160deg, #8a5a2b, #6b3f1a); }
+  .c2 { background: linear-gradient(160deg, #4a6b4f, #2f4a34); }
+  .c3 { background: linear-gradient(160deg, #7a4a6b, #54304a); }
+  .c4 { background: linear-gradient(160deg, #3f6184, #2a435e); }
+  .c5 { background: linear-gradient(160deg, #a05a2c, #78401c); }
+  .nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    color: #4a3220;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+  .nav:active { background: #fff; }
+  #prevBtn { left: 8px; }
+  #nextBtn { right: 8px; }
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  #counter { font-size: 14px; color: #6b5844; font-variant-numeric: tabular-nums; }
+  .dots { display: flex; gap: 7px; }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #cbb79e; border: none; padding: 0; cursor: pointer;
+  }
+  .dot.active { background: #7a4a21; }
+</style>
+</head>
+<body>
+  <h1>Neighborhood Coffee Spots</h1>
+  <div id="readout"><span class="hint">Tap a card to select a spot</span></div>
+
+  <div class="carousel">
+    <div class="viewport" id="viewport">
+      <div class="track" id="track">
+        <div class="card c1" data-name="Ember &amp; Oak">
+          <span class="emoji">🔥</span>
+          <h2>Ember &amp; Oak</h2>
+          <p>Wood-fired roastery vibes with a cozy fireplace corner and the best cortado on the block.</p>
+          <div class="meta">★ 4.8 · 0.3 mi · Open until 6 PM</div>
+        </div>
+        <div class="card c2" data-name="Fern Hollow Coffee">
+          <span class="emoji">🌿</span>
+          <h2>Fern Hollow Coffee</h2>
+          <p>A plant-filled hideaway pouring single-origin espresso and house-made lavender syrup.</p>
+          <div class="meta">★ 4.9 · 0.5 mi · Open until 5 PM</div>
+        </div>
+        <div class="card c3" data-name="The Daily Grindhouse">
+          <span class="emoji">🎬</span>
+          <h2>The Daily Grindhouse</h2>
+          <p>Movie-poster walls, bottomless drip refills, and a loyalty card worth the wallet space.</p>
+          <div class="meta">★ 4.6 · 0.7 mi · Open until 8 PM</div>
+        </div>
+        <div class="card c4" data-name="Blue Door Brews">
+          <span class="emoji">🚪</span>
+          <h2>Blue Door Brews</h2>
+          <p>Blink and you'll miss it: a tiny counter behind a blue door serving stellar cold brew.</p>
+          <div class="meta">★ 4.7 · 0.9 mi · Open until 4 PM</div>
+        </div>
+        <div class="card c5" data-name="Sunrise Social Club">
+          <span class="emoji">🌅</span>
+          <h2>Sunrise Social Club</h2>
+          <p>Early risers welcome. Big communal tables, fresh pastries at dawn, and board games all day.</p>
+          <div class="meta">★ 4.8 · 1.1 mi · Open until 7 PM</div>
+        </div>
+      </div>
+    </div>
+    <button class="nav" id="prevBtn" aria-label="Previous spot">&#8249;</button>
+    <button class="nav" id="nextBtn" aria-label="Next spot">&#8250;</button>
+  </div>
+
+  <div class="footer">
+    <span id="counter">1 / 5</span>
+    <div class="dots" id="dots"></div>
+  </div>
+
+<script>
+  (function () {
+    var track = document.getElementById('track');
+    var viewport = document.getElementById('viewport');
+    var counter = document.getElementById('counter');
+    var readout = document.getElementById('readout');
+    var dotsWrap = document.getElementById('dots');
+    var cards = track.children;
+    var total = cards.length;
+    var index = 0;
+
+    for (var i = 0; i < total; i++) {
+      var d = document.createElement('button');
+      d.className = 'dot' + (i === 0 ? ' active' : '');
+      d.setAttribute('aria-label', 'Go to spot ' + (i + 1));
+      (function (n) {
+        d.addEventListener('click', function () { goTo(n); });
+      })(i);
+      dotsWrap.appendChild(d);
+    }
+
+    function goTo(n) {
+      index = (n + total) % total;
+      track.style.transform = 'translateX(' + (-index * 100) + '%)';
+      counter.textContent = (index + 1) + ' / ' + total;
+      var dots = dotsWrap.children;
+      for (var i = 0; i < total; i++) {
+        dots[i].classList.toggle('active', i === index);
+      }
+    }
+
+    document.getElementById('prevBtn').addEventListener('click', function () { goTo(index - 1); });
+    document.getElementById('nextBtn').addEventListener('click', function () { goTo(index + 1); });
+
+    for (var j = 0; j < total; j++) {
+      (function (card) {
+        card.addEventListener('click', function () {
+          readout.textContent = 'Selected: ' + card.getAttribute('data-name');
+        });
+      })(cards[j]);
+    }
+
+    var startX = null, startY = null;
+    viewport.addEventListener('touchstart', function (e) {
+      var t = e.changedTouches[0];
+      startX = t.clientX;
+      startY = t.clientY;
+    }, { passive: true });
+    viewport.addEventListener('touchend', function (e) {
+      if (startX === null) return;
+      var t = e.changedTouches[0];
+      var dx = t.clientX - startX;
+      var dy = t.clientY - startY;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+        goTo(dx < 0 ? index + 1 : index - 1);
+      }
+      startX = null;
+      startY = null;
+    }, { passive: true });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft') goTo(index - 1);
+      if (e.key === 'ArrowRight') goTo(index + 1);
+    });
+  })();
+</script>
+</body>
+</html>
