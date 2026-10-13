@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neighborhood Coffee Spots</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #25211d;
+      --muted: #71675d;
+      --paper: #f7f2ea;
+      --card: #fffdf8;
+      --line: #ded2c2;
+      --accent: #9a4f2a;
+      --accent-soft: #f0ded0;
+      --shadow: 0 16px 38px rgba(74, 48, 27, 0.14);
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      overflow-x: hidden;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body { padding: 22px 14px 34px; }
+
+    main {
+      width: min(100%, 430px);
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2rem, 11vw, 3.4rem);
+      line-height: 0.98;
+      letter-spacing: -0.045em;
+    }
+
+    .intro {
+      margin: 12px 0 18px;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.55;
+    }
+
+    .readout {
+      display: flex;
+      align-items: baseline;
+      gap: 9px;
+      min-height: 45px;
+      margin: 0 0 12px;
+      padding: 12px 15px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 253, 248, 0.72);
+      line-height: 1.3;
+    }
+
+    .readout span {
+      flex: 0 0 auto;
+      color: var(--accent);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .readout strong {
+      font-size: 1.02rem;
+      font-weight: 750;
+    }
+
+    .tcar {
+      position: relative;
+      padding: 0 30px;
+    }
+
+    .ttrack {
+      display: flex;
+      overflow-x: auto;
+      border-radius: 24px;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      overscroll-behavior-x: contain;
+    }
+
+    .ttrack::-webkit-scrollbar { display: none; }
+
+    .tslide {
+      flex: 0 0 100%;
+      min-width: 0;
+      scroll-snap-align: center;
+      scroll-snap-stop: always;
+    }
+
+    .tslide-card {
+      display: block;
+      width: 100%;
+      padding: 24px 27px 22px;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .tslide-card[aria-pressed="true"] {
+      border-color: var(--accent);
+      outline: 3px solid rgba(154, 79, 42, 0.2);
+      outline-offset: -3px;
+    }
+
+    .tslide-card:focus-visible,
+    .tnav:focus-visible {
+      outline: 3px solid rgba(154, 79, 42, 0.45);
+      outline-offset: 3px;
+    }
+
+    .art {
+      height: 92px;
+      margin-bottom: 19px;
+      border-radius: 17px;
+      background:
+        radial-gradient(circle at 78% 22%, rgba(255, 244, 196, 0.95) 0 11%, transparent 12%),
+        linear-gradient(135deg, var(--tone-a), var(--tone-b));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .art::after {
+      content: "";
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 16px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.55);
+    }
+
+    .spot-kicker {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 10px;
+      color: var(--accent);
+      font-size: 0.72rem;
+      font-weight: 850;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .spot-name {
+      display: block;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 2rem;
+      line-height: 1.03;
+      letter-spacing: -0.035em;
+    }
+
+    .spot-detail {
+      display: block;
+      margin-top: 13px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.55;
+    }
+
+    .spot-note {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #71381d;
+      font-size: 0.82rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .tcount {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-variant-numeric: tabular-nums;
+      font-size: 0.88rem;
+      text-align: center;
+    }
+
+    .tnav {
+      position: absolute;
+      top: 50%;
+      z-index: 2;
+      display: grid;
+      place-items: center;
+      width: 46px;
+      height: 46px;
+      padding: 0;
+      border: 1px solid rgba(222, 210, 194, 0.9);
+      border-radius: 50%;
+      background: rgba(255, 253, 248, 0.82);
+      box-shadow: 0 8px 22px rgba(74, 48, 27, 0.18);
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 2rem;
+      line-height: 1;
+      cursor: pointer;
+      transform: translateY(-50%);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      touch-action: manipulation;
+    }
+
+    .tnav.prev { left: 0; }
+    .tnav.next { right: 0; }
+
+    .hint {
+      margin: 16px 30px 0;
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    @media (min-width: 700px) {
+      body { padding-top: 44px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Five neighborhood coffee spots</h1>
+    <p class="intro">Browse one spot at a time, use the arrows or swipe, and tap a card to select it.</p>
+
+    <div class="readout" aria-live="polite">
+      <span>Selected</span>
+      <strong id="readoutName">Juniper Coffee</strong>
+    </div>
+
+    <div class="tcar">
+      <div class="ttrack" id="ttrack" aria-label="Neighborhood coffee spots"></div>
+      <button class="tnav prev" id="tprev" type="button" aria-label="Previous">‹</button>
+      <button class="tnav next" id="tnext" type="button" aria-label="Next">›</button>
+    </div>
+
+    <p class="hint">The selected spot updates in place. The page stays exactly where it is.</p>
+  </main>
+
+  <script>
+    (() => {
+      const spots = [
+        {
+          name: "Juniper Coffee",
+          neighborhood: "Maple Row",
+          detail: "A bright corner cafe with slow-bar pour-overs, cardamom cold brew, and a long shared table made for lingering.",
+          note: "Best for: a quiet first coffee",
+          toneA: "#c98d5e",
+          toneB: "#5f7d5a"
+        },
+        {
+          name: "Blue Door Roasters",
+          neighborhood: "Old Mill District",
+          detail: "Small-batch beans roasted behind the counter, with espresso tastings every Saturday and bags to take home.",
+          note: "Best for: coffee nerds",
+          toneA: "#54758e",
+          toneB: "#273c54"
+        },
+        {
+          name: "Mabel's Corner Coffee",
+          neighborhood: "Elm & 9th",
+          detail: "A cozy neighborhood staple serving cinnamon lattes, fresh biscuits, and the kind of friendly regulars' buzz that makes a new street feel familiar.",
+          note: "Best for: weekend brunch",
+          toneA: "#d8a24a",
+          toneB: "#9a4f2a"
+        },
+        {
+          name: "Northlight Espresso",
+          neighborhood: "Station Quarter",
+          detail: "Fast, polished, and commuter-friendly, with precise espresso, sparkling yuzu tonics, and plenty of outlets near the windows.",
+          note: "Best for: getting work done",
+          toneA: "#8fb6bd",
+          toneB: "#35586d"
+        },
+        {
+          name: "Fern & Flour Coffee",
+          neighborhood: "Garden Lane",
+          detail: "Part bakery, part plant-filled coffee bar. Go for the brown-butter latte and stay for a still-warm pastry.",
+          note: "Best for: pastry first, coffee close behind",
+          toneA: "#7a9a68",
+          toneB: "#d3b46c"
+        }
+      ];
+
+      const track = document.getElementById("ttrack");
+      const readoutName = document.getElementById("readoutName");
+      const prev = document.getElementById("tprev");
+      const next = document.getElementById("tnext");
+      const total = spots.length;
+      let idx = 0;
+      let scrollTicking = false;
+      let settleTimer = null;
+      let resizeTimer = null;
+
+      function wrapIndex(i) {
+        return ((i % total) + total) % total;
+      }
+
+      function applySelection(i) {
+        idx = wrapIndex(i);
+        readoutName.textContent = spots[idx].name;
+        track.querySelectorAll(".tslide-card").forEach((card, cardIndex) => {
+          card.setAttribute("aria-pressed", String(cardIndex === idx));
+        });
+      }
+
+      function settleNearest() {
+        if (!track.clientWidth) return;
+        const nearest = wrapIndex(Math.round(track.scrollLeft / track.clientWidth));
+        const target = nearest * track.clientWidth;
+        if (Math.abs(track.scrollLeft - target) > 2) {
+          track.scrollTo(target, 0);
+        }
+        if (nearest !== idx) applySelection(nearest);
+      }
+
+      function scheduleSettle() {
+        window.clearTimeout(settleTimer);
+        settleTimer = window.setTimeout(settleNearest, 180);
+      }
+
+      function load(i) {
+        applySelection(i);
+        track.scrollTo(idx * track.clientWidth, 0);
+        scheduleSettle();
+      }
+
+      function equalizeCards() {
+        const cards = Array.from(track.querySelectorAll(".tslide-card"));
+        cards.forEach((card) => { card.style.height = ""; });
+        const tallest = cards.reduce((max, card) => Math.max(max, card.offsetHeight), 0);
+        if (tallest > 0) {
+          cards.forEach((card) => { card.style.height = `${tallest}px`; });
+        }
+      }
+
+      spots.forEach((spot, i) => {
+        const slide = document.createElement("div");
+        slide.className = "tslide";
+        slide.setAttribute("role", "group");
+        slide.setAttribute("aria-roledescription", "slide");
+        slide.setAttribute("aria-label", `${i + 1} of ${total}: ${spot.name}`);
+
+        const card = document.createElement("button");
+        card.className = "tslide-card";
+        card.type = "button";
+        card.setAttribute("aria-pressed", String(i === 0));
+        card.innerHTML = `
+          <span class="art" style="--tone-a: ${spot.toneA}; --tone-b: ${spot.toneB}" aria-hidden="true"></span>
+          <span class="spot-kicker"><span>${spot.neighborhood}</span><span>Coffee spot</span></span>
+          <span class="spot-name">${spot.name}</span>
+          <span class="spot-detail">${spot.detail}</span>
+          <span class="spot-note">${spot.note}</span>
+        `;
+        card.addEventListener("click", () => load(i));
+
+        const count = document.createElement("p");
+        count.className = "tcount";
+        count.textContent = `${i + 1}/${total}`;
+
+        slide.append(card, count);
+        track.appendChild(slide);
+      });
+
+      prev.addEventListener("click", () => load(idx - 1));
+      next.addEventListener("click", () => load(idx + 1));
+
+      track.addEventListener("scroll", () => {
+        if (!scrollTicking) {
+          scrollTicking = true;
+          window.requestAnimationFrame(() => {
+            if (track.clientWidth) {
+              const i = wrapIndex(Math.round(track.scrollLeft / track.clientWidth));
+              if (i !== idx) applySelection(i);
+            }
+            scrollTicking = false;
+          });
+        }
+        scheduleSettle();
+      }, { passive: true });
+
+      if ("onscrollend" in track) {
+        track.addEventListener("scrollend", settleNearest);
+      }
+
+      window.addEventListener("resize", () => {
+        window.clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(() => {
+          equalizeCards();
+          track.scrollTo(idx * track.clientWidth, 0);
+        }, 120);
+      });
+
+      applySelection(0);
+      window.requestAnimationFrame(equalizeCards);
+      window.addEventListener("load", equalizeCards);
+    })();
+  </script>
+</body>
+</html>
