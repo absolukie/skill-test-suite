@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Before / After Comparison Slider</title>
+<style>
+  :root{
+    --divider: 50%;
+    --accent: #ffffff;
+    --handle-bg: rgba(20,20,20,.55);
+    --label-bg: rgba(0,0,0,.55);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background:#1c1e22;
+    color:#f2f2f2;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+    padding:24px 16px;
+  }
+  h1{ font-size:1.1rem; font-weight:600; letter-spacing:.02em; }
+  p.hint{ font-size:.85rem; color:#a9adb5; }
+
+  .compare{
+    position:relative;
+    width:min(880px, 100%);
+    aspect-ratio: 16 / 10;
+    border-radius:12px;
+    overflow:hidden;
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:none;
+    box-shadow:0 12px 40px rgba(0,0,0,.45);
+    background:#000;
+  }
+  .layer{
+    position:absolute;
+    inset:0;
+  }
+  .layer svg{
+    display:block;
+    width:100%;
+    height:100%;
+  }
+  /* After layer is clipped to the right of the divider */
+  .layer.after{
+    clip-path: inset(0 0 0 var(--divider));
+  }
+  /* Before layer is clipped to the left of the divider */
+  .layer.before{
+    clip-path: inset(0 calc(100% - var(--divider)) 0 0);
+  }
+
+  .label{
+    position:absolute;
+    top:12px;
+    z-index:4;
+    padding:4px 10px;
+    border-radius:999px;
+    background:var(--label-bg);
+    color:#fff;
+    font-size:.75rem;
+    font-weight:600;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    pointer-events:none;
+  }
+  .label.before-label{ left:12px; }
+  .label.after-label{ right:12px; }
+
+  .divider-line{
+    position:absolute;
+    top:0; bottom:0;
+    left:var(--divider);
+    width:3px;
+    margin-left:-1.5px;
+    background:var(--accent);
+    z-index:5;
+    pointer-events:none;
+    box-shadow:0 0 8px rgba(0,0,0,.35);
+  }
+  .handle{
+    position:absolute;
+    top:50%;
+    left:var(--divider);
+    transform:translate(-50%,-50%);
+    z-index:6;
+    width:44px; height:44px;
+    border-radius:50%;
+    border:3px solid var(--accent);
+    background:var(--handle-bg);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:ew-resize;
+    touch-action:none;
+    padding:0;
+  }
+  .handle svg{ width:22px; height:22px; pointer-events:none; }
+  .handle:focus-visible{
+    outline:3px solid #6db3ff;
+    outline-offset:3px;
+  }
+
+  .readout{ font-size:.85rem; color:#c8cbd1; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+
+<h1>Before / After</h1>
+
+<div class="compare" id="compare" aria-label="Photo comparison: unedited on the left, edited on the right">
+
+  <!-- BEFORE: dull, hazy, desaturated scene -->
+  <div class="layer before" aria-hidden="true">
+    <svg viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Unedited photo">
+      <defs>
+        <linearGradient id="skyBefore" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#9aa3a8"/>
+          <stop offset="0.55" stop-color="#b8bcb9"/>
+          <stop offset="1" stop-color="#c9c6ba"/>
+        </linearGradient>
+        <radialGradient id="sunBefore" cx="0.72" cy="0.26" r="0.22">
+          <stop offset="0" stop-color="#e8e4d2" stop-opacity="0.85"/>
+          <stop offset="1" stop-color="#e8e4d2" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="hillBefore" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#7d8474"/>
+          <stop offset="1" stop-color="#5f6657"/>
+        </linearGradient>
+        <linearGradient id="seaBefore" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#8b9494"/>
+          <stop offset="1" stop-color="#6f7a7c"/>
+        </linearGradient>
+      </defs>
+      <rect width="800" height="300" fill="url(#skyBefore)"/>
+      <rect width="800" height="300" fill="url(#sunBefore)"/>
+      <circle cx="576" cy="130" r="34" fill="#dcd8c6"/>
+      <path d="M0 300 L180 218 L340 282 L520 205 L800 268 L800 500 L0 500 Z" fill="url(#hillBefore)"/>
+      <rect y="392" width="800" height="108" fill="url(#seaBefore)"/>
+      <g fill="#6b7263">
+        <path d="M120 330 l14 -34 l14 34 Z"/>
+        <path d="M152 336 l12 -28 l12 28 Z"/>
+        <path d="M640 322 l14 -34 l14 34 Z"/>
+      </g>
+      <!-- haze over everything -->
+      <rect width="800" height="500" fill="#cfd0c8" opacity="0.28"/>
+    </svg>
+  </div>
+
+  <!-- AFTER: vivid, saturated, contrasty scene -->
+  <div class="layer after" aria-hidden="true">
+    <svg viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Edited photo">
+      <defs>
+        <linearGradient id="skyAfter" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2f7fe0"/>
+          <stop offset="0.55" stop-color="#79b6f2"/>
+          <stop offset="1" stop-color="#ffe3ae"/>
+        </linearGradient>
+        <radialGradient id="sunAfter" cx="0.72" cy="0.26" r="0.25">
+          <stop offset="0" stop-color="#fff3b0" stop-opacity="0.95"/>
+          <stop offset="1" stop-color="#fff3b0" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="hillAfter" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#3f9e4d"/>
+          <stop offset="1" stop-color="#1f6b33"/>
+        </linearGradient>
+        <linearGradient id="seaAfter" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#1fa8c9"/>
+          <stop offset="1" stop-color="#0b6e96"/>
+        </linearGradient>
+      </defs>
+      <rect width="800" height="300" fill="url(#skyAfter)"/>
+      <rect width="800" height="300" fill="url(#sunAfter)"/>
+      <circle cx="576" cy="130" r="34" fill="#ffdf6b"/>
+      <g fill="#ffffff" opacity="0.9">
+        <ellipse cx="180" cy="90" rx="58" ry="16"/>
+        <ellipse cx="215" cy="78" rx="40" ry="13"/>
+        <ellipse cx="430" cy="60" rx="46" ry="12"/>
+      </g>
+      <path d="M0 300 L180 218 L340 282 L520 205 L800 268 L800 500 L0 500 Z" fill="url(#hillAfter)"/>
+      <rect y="392" width="800" height="108" fill="url(#seaAfter)"/>
+      <g stroke="#d9f4ff" stroke-width="3" stroke-linecap="round" opacity="0.75">
+        <line x1="60" y1="428" x2="150" y2="428"/>
+        <line x1="330" y1="452" x2="440" y2="452"/>
+        <line x1="580" y1="424" x2="700" y2="424"/>
+      </g>
+      <g fill="#14532a">
+        <path d="M120 330 l14 -34 l14 34 Z"/>
+        <path d="M152 336 l12 -28 l12 28 Z"/>
+        <path d="M640 322 l14 -34 l14 34 Z"/>
+      </g>
+    </svg>
+  </div>
+
+  <span class="label before-label">Unedited</span>
+  <span class="label after-label">Edited</span>
+
+  <div class="divider-line" aria-hidden="true"></div>
+
+  <button class="handle" id="handle" type="button"
+          role="slider"
+          aria-label="Comparison divider"
+          aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"
+          aria-valuetext="50 percent edited visible">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M8.5 5 L3.5 12 L8.5 19"/>
+      <path d="M15.5 5 L20.5 12 L15.5 19"/>
+    </svg>
+  </button>
+</div>
+
+<p class="readout" id="readout">Divider at 50%</p>
+<p class="hint">Drag the handle, click anywhere on the image, or focus the handle and use the arrow keys (Home / End reset).</p>
+
+<script>
+(function () {
+  var container = document.getElementById('compare');
+  var handle    = document.getElementById('handle');
+  var readout   = document.getElementById('readout');
+  var pct = 50;
+  var dragging = false;
+
+  function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+
+  function render() {
+    var rounded = Math.round(pct);
+    container.style.setProperty('--divider', pct + '%');
+    handle.setAttribute('aria-valuenow', String(rounded));
+    handle.setAttribute('aria-valuetext', rounded + ' percent edited visible');
+    readout.textContent = 'Divider at ' + rounded + '%';
+  }
+
+  function setFromClientX(clientX) {
+    var rect = container.getBoundingClientRect();
+    pct = clamp(((clientX - rect.left) / rect.width) * 100, 0, 100);
+    render();
+  }
+
+  /* Pointer dragging on the whole component (handle included) */
+  container.addEventListener('pointerdown', function (e) {
+    dragging = true;
+    container.setPointerCapture(e.pointerId);
+    setFromClientX(e.clientX);
+    handle.focus({ preventScroll: true });
+  });
+  container.addEventListener('pointermove', function (e) {
+    if (dragging) setFromClientX(e.clientX);
+  });
+  function endDrag(e) {
+    dragging = false;
+    if (e.pointerId !== undefined && container.hasPointerCapture(e.pointerId)) {
+      container.releasePointerCapture(e.pointerId);
+    }
+  }
+  container.addEventListener('pointerup', endDrag);
+  container.addEventListener('pointercancel', endDrag);
+
+  /* Keyboard control on the handle (native button focus + slider semantics) */
+  handle.addEventListener('keydown', function (e) {
+    var step = e.shiftKey ? 10 : 1;
+    switch (e.key) {
+      case 'ArrowLeft':
+      case 'ArrowDown':
+        pct = clamp(pct - step, 0, 100); break;
+      case 'ArrowRight':
+      case 'ArrowUp':
+        pct = clamp(pct + step, 0, 100); break;
+      case 'Home':
+        pct = 0; break;
+      case 'End':
+        pct = 100; break;
+      case 'PageDown':
+        pct = clamp(pct - 10, 0, 100); break;
+      case 'PageUp':
+        pct = clamp(pct + 10, 0, 100); break;
+      default:
+        return;
+    }
+    e.preventDefault();
+    render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
